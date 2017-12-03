@@ -48,7 +48,7 @@ def getInput(prompt):
     while not word or word.isspace():
         word = requestString(prompt)
         if not word or word.isspace():
-            showInformation("Invalid input")
+            requestString("Invalid input")
     return word
 
 
@@ -76,12 +76,11 @@ def getArticle():
                     break
 
     return urllib.unquote(text).decode('utf8')
-          
-# -------------------------- Lab 13 - Part II  --------------------------
 
+# -------------------------- Lab 13 - Part II  --------------------------
 # CAVE ESCAPE Game Description:
 # An explorer has fallen down a hole in the ground and into a cave. In order to navigate through the cave,
-# they have to use specific commands that lead to specific directions inside the cave. If the user is lost
+# s/he has to use specific commands that lead to specific directions inside the cave. If the user is lost
 # or confused, there is a map or a help description available.
 # MAP OF CAVE
 #  [startRoom]    -  [darkRoom]  -  [islandRoom]
@@ -113,7 +112,7 @@ def map():  # Serves as the additional feature required per classroom instructio
 
 def getHelp():
     """ Prints help instructions to the user, if the user enters the 'HELP' command """
-    showInformation(welcomeMessage())
+    printNow (welcomeMessage())
 
 
 def welcomeMessage():
@@ -125,8 +124,18 @@ def welcomeMessage():
            '-- Type MAP for a cave map\n' \
            '-- Type EXIT to quit at any time\n'
 
-def runRoom(description, roomSpecificCommands):
-    """ Prints the details of each room and gets a command from the user, ensure it is an acceptable command for the program and returns command
+
+def printDetails(description):
+    """ prints the details of each room """
+
+    printNow('************************')
+    printNow ('YOU ARE CURRENTLY in :')
+    printNow(description)
+    printNow('************************')
+
+
+def getCommand(roomSpecificCommands):
+    """ Gets a command from the user, ensure it is an acceptable command for the program and returns command
         If the command is not a valid entry, displays error message and requests user to enter a valid command
         :param roomSpecificCommands (list) the specific commands for the given room
         :return command (string) the command typed by the user
@@ -139,11 +148,17 @@ def runRoom(description, roomSpecificCommands):
         allValidCommands += acceptableCommands[i] + ' '
 
     while True:
-        command = requestString(description + '\n\n' +
-            allValidCommands + '\nEnter Command:').upper()
+
+        command = requestString(
+            allValidCommands + '\nEnter Command:')
+        command = command.upper()
 
         if command not in acceptableCommands:
-            showInformation('ERROR! Not a valid entry!\nAcceptable Commands for this room are\n' + allValidCommands)
+            printNow('************************')
+            printNow("ERROR! Not a valid entry!")
+            printNow("Acceptable Commands for this room are")
+            printNow(acceptableCommands)
+            printNow('************************')
         else:
             return command
 
@@ -154,7 +169,8 @@ def startRoom(acceptableCommands):
     """
     description = 'START ROOM!\nThis area is big and expansive.\n' \
                   'You can see daylight coming from where you fell.\nIf you have rope you can climb out!'
-    userCommand = runRoom(description, acceptableCommands)#['RIGHT', 'DOWN']
+    printDetails(description)
+    userCommand = getCommand(acceptableCommands)#['RIGHT', 'DOWN']
     return userCommand
 
 
@@ -165,7 +181,8 @@ def darkRoom(acceptableCommands):
     description = 'DARK ROOM!\nThe room is dark and you cannot see much\n' \
                   'It smells damp and you can hear critters in the nearby water.\n' \
                   'This room needs more light!'
-    userCommand = runRoom(description, acceptableCommands)#['RIGHT', 'DOWN', 'LEFT']
+    printDetails(description)
+    userCommand = getCommand(acceptableCommands)#['RIGHT', 'DOWN', 'LEFT']
     return userCommand
 
 def secretRoom(acceptableCommands):
@@ -175,7 +192,8 @@ def secretRoom(acceptableCommands):
     description = 'SECRET ROOM!\nWow this room is not on map.  There is a commodore 64 computer in this room!\n' \
                   'If you play the game War Games(WOPR) on this you might accidentally break into NORAD!\n' \
                   'Best to leave this secret room alone!'
-    userCommand = runRoom(description, acceptableCommands)
+    printDetails(description)
+    userCommand = getCommand(acceptableCommands)
     return userCommand  
 
 def skeletonRoom(acceptableCommands):
@@ -184,7 +202,8 @@ def skeletonRoom(acceptableCommands):
     """
     description = 'SKELETON ROOM!\nStalagmites fill this cavern.\n' \
                   'You see skeletons of past victims that fell down the well.\nPoor souls!'
-    userCommand = runRoom(description, acceptableCommands)#['UP', 'RIGHT']
+    printDetails(description)
+    userCommand = getCommand(acceptableCommands)#['UP', 'RIGHT']
     return userCommand
 
 
@@ -195,7 +214,8 @@ def batRoom(acceptableCommands):
     description = 'BATROOM!\n The walls of the cavern are filled with thousands of hanging bats\n ' \
                   'It smells of bat guano... Yuck.\n'\
                   'Another explorer left their pack here with a bunch of matches!'
-    userCommand = runRoom(description, acceptableCommands)#['LEFT', 'UP']
+    printDetails(description)
+    userCommand = getCommand(acceptableCommands)#['LEFT', 'UP']
     return userCommand
 
 
@@ -205,35 +225,24 @@ def islandRoom(acceptableCommands):
     """
     description = 'ISLAND ROOM!\nThe room is surrounded by a large lake that looks pristine\n' \
                   'The water is blue and it refracts light on the cavern walls.\nThere is a lot of rope laying around!'
-    userCommand = runRoom(description, acceptableCommands)#['LEFT']
+    printDetails(description)
+    userCommand = getCommand(acceptableCommands)#['LEFT']
     return userCommand
-    
-def getName():
-    name = ''
-    while not name or name.isspace():
-        name = requestString("What is your name?")
-        if not name or name.isspace():
-            showInformation("Invalid input!")
-    return name
   
 
 def main():
     """main function, starts the game """
 
+    printNow (welcomeMessage())
     showInformation('Lets Get Started!')
-    name = getName()
-    showInformation(welcomeMessage())
- 
-    
     
     x = 0  # represents an x cartestian coordinate
     y = 0  # represents a y cartestian coordinate
     
     #additional items and actions 
-    rope = 'ROPE'
-    matches = 'MATCHES'
-    items = []
-    darkRoomLit = false #changes to true if matches used in dark room
+    darkRoomLit = false #changes to true if matches used in dark room 
+    hasMatches = false #changes to true if user picks up matches
+    hasRope = false #changes to true if user picks up rope
     secretRoomAccess = false #user can only gain access to secret room by lighting a match in the dark room
     roomChanges = 0 #If room changes exceeds maxRoomChanges, you lose the game
     maxRoomChanges = 20 #Lose condition if you exceed maxRoomChanges  
@@ -242,7 +251,7 @@ def main():
     while true:
 
         if x == 0 and y == 0:
-          if rope not in items:
+          if hasRope == false:
             userCommand = startRoom(['RIGHT', 'DOWN'])
           else:
             userCommand = startRoom(['RIGHT', 'DOWN', 'CLIMBOUT'])     
@@ -253,7 +262,7 @@ def main():
         elif x == 1 and y == 0:
          if secretRoomAccess == true:
            userCommand = darkRoom(['RIGHT', 'DOWN', 'LEFT', 'UP'])
-         elif matches in items:
+         elif hasMatches == true:
            userCommand = darkRoom(['RIGHT', 'DOWN', 'LEFT', 'STRIKEMATCH'])
          else:
            userCommand = darkRoom(['RIGHT', 'DOWN', 'LEFT'])
@@ -263,13 +272,13 @@ def main():
           userCommand = secretRoom(['DOWN'])  
                
         elif x == 2 and y == 0:
-          if rope not in items:    
+          if hasRope == false:    
             userCommand = islandRoom(['LEFT','GETROPE'])
           else:
             userCommand = islandRoom(['LEFT'])  
             
         elif x == 1 and y == -1:
-          if matches in items:  
+          if hasMatches == true:  
             userCommand = batRoom(['LEFT', 'UP'])
           else:
             userCommand = batRoom(['LEFT', 'UP', 'GETMATCHES'])
@@ -277,19 +286,20 @@ def main():
         # Process off of what user input or userCommand is
         if userCommand == 'HELP':
             getHelp()
+            showInformation("Press OK to Continue") 
         elif userCommand == 'EXIT':
-            showInformation(name + ',\nEven though you are a quiter, thank you for playing!')
+            print("Even though you are a quiter, thank you for playing!")
             return  # effectively exit the program
             
         elif userCommand == 'MAP':
             if x == 1 and y == 0:
                 showInformation('You cannot read your map in the Dark Room... Too dark!')
             else:
-                map()
+             map()
              
         elif userCommand == 'GETMATCHES':
           showInformation('You have picked up several matches!')
-          items.append(matches)
+          hasMatches = true
           
         elif userCommand == 'STRIKEMATCH':
           showInformation('After stirking the match, you see a secret room hidden in the shadows!'\
@@ -298,10 +308,10 @@ def main():
           
         elif userCommand == 'GETROPE':
           showInformation('You have picked up rope!\nYou can use rope to climb!')
-          items.append(rope)
+          hasRope = true
           
         elif userCommand == 'CLIMBOUT':
-          showInformation('YOU WIN! You use the rope to climb out\n' + name + ' you have survived the game!')
+          showInformation('YOU WIN! You use the rope to climb out\n!You have survived the game!')
           return #end of game, user has won   
                       
         elif userCommand == 'UP':
@@ -319,5 +329,5 @@ def main():
     
         #GAME OVER condition        
         if roomChanges > maxRoomChanges:
-          showInformation('GAME OVER ' + name.upper() + '\nYOU HAVE DIED FROM OXYGEN DEPREVATION\nTOO MANY ROOM CHANGES SO YOU HAVE LOST THE GAME!')
-          return #end of game         
+          printNow('GAME OVER\nYOU HAVE DIED FROM OXYGEN DEPREVATION\nTOO MANY ROOM CHANGES SO YOU HAVE LOST THE GAME!')
+          return #end of game  
